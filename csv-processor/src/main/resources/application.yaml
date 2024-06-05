@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: csv-processor
+
+constants:
+  file-path: ${FILE}
+  output-path: ${OUT_FILE}

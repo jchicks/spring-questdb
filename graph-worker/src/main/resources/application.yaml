@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: graph-worker
+
+server:
+  port: 4040
+
+quest-db:
+  root: ${QUEST_DB_ROOT}

@@ -17,13 +17,14 @@ import io.questdb.cairo.sql.Record;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class TimeSeriesDao {
 
   CairoConfiguration cairoConfiguration;
   SqlService sqlService;
-
+  private final ReentrantLock lock = new ReentrantLock();
 
 
   public TimeSeriesDao(CairoConfiguration cairoConfiguration, SqlService sqlService) {
@@ -37,6 +38,7 @@ public class TimeSeriesDao {
 
     return Mono.create(emitter -> {
       try {
+        lock.lock();
         var engine = new CairoEngine(cairoConfiguration);
         var ctx = new SqlExecutionContextImpl(engine, 1)
           .with(AllowAllSecurityContext.INSTANCE, null);
@@ -52,7 +54,6 @@ public class TimeSeriesDao {
 
           cursor.close();
           factory.close();
-//        compiler.close();
           engine.close();
         }
         emitter.success(list);
@@ -60,15 +61,17 @@ public class TimeSeriesDao {
       catch (Exception e) {
         emitter.error(e);
       }
+      finally {
+        lock.unlock();
+      }
     });
   }
 
   static protected Point timeXPointMapper(Record record) {
-
     return
       Point
         .builder()
-        .x(Long.valueOf(record.getLong(1)).doubleValue()/1000)
+        .x((double)record.getTimestamp(0)/1000)
         .y(record.getDouble(1))
         .build();
   }

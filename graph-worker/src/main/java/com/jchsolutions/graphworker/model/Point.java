@@ -10,6 +10,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Point {
-  Object x;
-  Object y;
+  Double x;
+  Double y;
 }

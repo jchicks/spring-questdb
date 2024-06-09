@@ -1,13 +1,15 @@
 package com.jchsolutions.graphworker.web;
 
-import com.jchsolutions.graphworker.GraphService;
+
 import com.jchsolutions.graphworker.model.Point;
+import com.jchsolutions.graphworker.service.GraphService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -19,14 +21,12 @@ public class GraphController {
     this.graphService = graphService;
   }
 
-  @GetMapping("/points")
-  public Mono<List<Point>> getPoints() {
-
-    var points = Arrays.asList(
-      Point.builder().x(1.0).y(2.0).build(),
-      Point.builder().x(3.0).y(4.0).build()
-    );
-
-    return null;
+  @GetMapping("/plot")
+  public Mono<List<Point>> plot(
+    @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate,
+    @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime endDate,
+    @RequestParam("threshold") int threshold)
+  {
+    return graphService.plot(startDate, endDate, threshold);
   }
 }

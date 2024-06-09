@@ -16,19 +16,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestPropertySource("/application-test.yaml")
-public class SqlServiceTest {
+public class GraphServiceTest {
 
   @Autowired
-  SqlService sqlService;
+  GraphService graphService;
 
   @Test
   public void testSql() {
     var startTimestamp = ZonedDateTime.parse("2019-01-01T00:00:00Z");
-    var endTimestamp = ZonedDateTime.parse("2020-01-31T23:59:59Z");
+    var endTimestamp = ZonedDateTime.parse("2020-07-31T23:59:59Z");
 
-    var expected = "select TIME_STAMP, TEMPERATURE from WEATHER_DATA where TIME_STAMP between timestamp '2019-01-01 01:00:00.0' and timestamp '2020-02-01 00:59:59.0'";
-    var actual = sqlService.generateSql(startTimestamp, endTimestamp);
+    var plot = graphService.plot(startTimestamp, endTimestamp, 1000).block();
 
-    assertEquals(expected, actual);
+    assertEquals(1000, plot.size());
   }
 }

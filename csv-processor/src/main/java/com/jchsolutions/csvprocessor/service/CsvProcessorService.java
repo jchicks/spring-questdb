@@ -28,7 +28,7 @@ public class CsvProcessorService {
 
   @PostConstruct
   public void start() throws IOException {
-    System.out.println("Start: " + new Date());
+    log.info("start...");
 
     csvPrinter.printRecord(ID, TIME_STAMP, TEMPERATURE, DEW_POINT);
 
@@ -42,9 +42,19 @@ public class CsvProcessorService {
 
       var timestamp = format("%sT%s:00.000000Z", date, hour);
 //      log.info("line: {}", timestamp);
-      csvPrinter.printRecord(id, timestamp, airTemperature, dewPointTemperature);
+
+      try {
+        var temperature = Double.parseDouble(airTemperature);
+
+        if (-1000.0 < temperature && temperature < 1000.0) {
+          csvPrinter.printRecord(id, timestamp, airTemperature, dewPointTemperature);
+        }
+      }
+      catch (Exception e) {
+        log.error("error printing", e);
+      }
     }
 
-    System.out.println("End: " + new Date());
+    log.info("end...");
   }
 }

@@ -1,5 +1,6 @@
 package com.jchsolutions.graphworker.dao;
 
+import com.jchsolutions.graphworker.model.Point;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +10,14 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.ZonedDateTime;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 //@RunWith(SpringRunner.class)
 @ExtendWith(SpringExtension.class)
@@ -29,13 +31,12 @@ public class TimeSeriesDaoTest {
 
   @Test
   public void testSql() {
-    var startTimestamp = ZonedDateTime.parse("2020-01-01T00:00:00Z");
+    var startTimestamp = ZonedDateTime.parse("2010-01-01T00:00:00Z");
     var endTimestamp = ZonedDateTime.parse("2020-01-31T23:59:59Z");
 
     var points = timeSeriesDao.getPoints(startTimestamp, endTimestamp).block();
-    var points2 = timeSeriesDao.getPoints(startTimestamp, endTimestamp).block();
 
-    assertEquals(points.size(), 108624);
+    assertEquals(points.size(), 39803);
   }
 
   @Test
@@ -43,15 +44,15 @@ public class TimeSeriesDaoTest {
 
     ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-    final AtomicInteger ctr = new AtomicInteger();
+    var results = Collections.synchronizedList(new ArrayList<List<Point>>());
 
     Runnable task = () -> {
-        var startTimestamp = ZonedDateTime.parse("2020-01-01T00:00:00Z");
-        var endTimestamp = ZonedDateTime.parse("2020-01-31T23:59:59Z");
+      var startTimestamp = ZonedDateTime.parse("2010-01-01T00:00:00Z");
+      var endTimestamp = ZonedDateTime.parse("2020-01-31T23:59:59Z");
 
-        var points = timeSeriesDao.getPoints(startTimestamp, endTimestamp).block();
+      var points = timeSeriesDao.getPoints(startTimestamp, endTimestamp).block();
 
-        ctr.incrementAndGet();
+      results.add(points);
     };
 
     for (int i=0; i<10; ++i) {
@@ -63,11 +64,10 @@ public class TimeSeriesDaoTest {
     if (!executorService.awaitTermination(300, TimeUnit.SECONDS)) {
       executorService.shutdownNow();
       if (!executorService.awaitTermination(300, TimeUnit.SECONDS)) {
-        System.err.println("Tasks did not finish");
+        fail("Tasks did not finish");
       }
     }
 
-    System.out.println("Tasks finished");
-
+    assertEquals(10, results.size());
   }
 }

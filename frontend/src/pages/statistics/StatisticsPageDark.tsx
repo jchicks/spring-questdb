@@ -1,10 +1,11 @@
 import "flatpickr/dist/themes/dark.css";
 
 import Flatpickr from "react-flatpickr";
-import * as Highcharts from 'highcharts';
-import HighchartsReact from "highcharts-react-official";
-import {useRef} from "react";
+import {useEffect, useRef, useState} from "react";
 import {DarkChart} from "../../common/graph/GraphDark";
+import {GraphArgs} from "../../model/GraphArgs";
+import {GraphModel, HandleChange} from "../../common/events";
+import {PlotService} from "../../service/PlotService";
 
 function SummaryHeader() {
   return (
@@ -63,19 +64,20 @@ function StatisticsSummary() {
   );
 }
 
-function GraphControls() {
+function GraphControls({onChange, graph}: HandleChange & GraphModel) {
   return (
-    <div className="grid grid-cols-1 bg-gray-700/10 sm:grid-cols-2 lg:grid-cols-6">
+    <div className="grid grid-cols-1 bg-gray-700/10 sm:grid-cols-2 lg:grid-cols-8">
       <div className="sm:col-span-2 sm:col-start-1 p-4">
         <label htmlFor="city" className="text-sm font-medium leading-6 text-gray-400">Start</label>
         <div className="mt-2">
           <Flatpickr
             className={"block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"}
             data-enable-time
-            // value={date}
-            // onChange={([date]) => {
-            //   this.setState({ date });
-            // }}
+            value={graph.start}
+            onChange={([date]) => {
+              graph.start = date;
+              onChange(graph);
+            }}
           />
         </div>
       </div>
@@ -86,76 +88,99 @@ function GraphControls() {
           <Flatpickr
             className={"block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"}
             data-enable-time
-            // value={date}
-            // onChange={([date]) => {
-            //   this.setState({ date });
-            // }}
+            value={graph.end}
+            onChange={([date]) => {
+              graph.end = date;
+              onChange(graph);
+            }}
           />
         </div>
       </div>
 
       <div className="sm:col-span-2 p-4">
-        <label htmlFor="postal-code" className="text-sm font-medium leading-6 text-gray-400">Number of Points</label>
+        <label htmlFor="threshold" className="text-sm font-medium leading-6 text-gray-400">Number of Points</label>
         <div className="mt-2">
-          <input type="text"
-                 name="postal-code"
-                 id="postal-code"
+          <input type="number"
+                 defaultValue={1000}
+                 onChange={(inputRef) => {
+                   // console.log("ref", inputRef);
+                   graph.threshHold = Number(inputRef.target.value);
+                   onChange(graph);
+                 }}
+                 name="threshold"
+                 id="threshold"
                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+        </div>
+      </div>
+
+      <div className="sm:col-span-2 p-4">
+        <label htmlFor="threshold" className="text-sm font-medium leading-6 text-gray-400">
+          &nbsp;
+        </label>
+        <div className="mt-2">
+          <button
+            type="submit"
+            className="flex
+                       w-full
+                       justify-center
+                       rounded-md
+                       bg-indigo-600
+                       px-3
+                       py-1.5
+                       text-sm
+                       font-semibold
+                       leading-6
+                       text-white
+                       shadow-sm
+                       hover:bg-indigo-500
+                       focus-visible:outline
+                       focus-visible:outline-2
+                       focus-visible:outline-offset-2
+                       focus-visible:outline-indigo-600">
+            Plot
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-function Header() {
-  return (
-    <header>
-      <SummaryHeader/>
-      <StatisticsSummary/>
-      <GraphControls/>
-    </header>
-  );
-}
-
-function Graph(props: HighchartsReact.Props) {
-  const options: Highcharts.Options = {
-    title: {
-      text: 'Down Sample Example'
-    },
-    series: [{
-      type: 'line',
-      data: [
-        [0,1],
-        [3,2],
-        [5,3]
-      ]
-    }]
-  };
-
-  const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
-
-  return (
-    <div className="border-t border-white/10 pt-11">
-      <h2 className="px-4 text-base font-semibold leading-7 text-white sm:px-6 lg:px-8">
-        Downsampled Graph
-      </h2>
-      <div className="mt-6 w-full whitespace-nowrap text-left">
-        <HighchartsReact
-          highcharts={Highcharts}
-          options={options}
-          ref={chartComponentRef}
-          {...props}
-        />
-      </div>
-    </div>
-  )
-}
-
 export function StatisticsPageDark() {
+
+  const [graphArgs, setGraphArgs] = useState<GraphArgs>(new GraphArgs());
+  const [series, setSeries] = useState<[Date,number][]>([]);
+
+  useEffect(() => {
+
+    const {start, end, threshHold} = graphArgs;
+
+    PlotService
+      .fetch(start, end, threshHold)
+      .then(newSeries => {
+        console.log(newSeries);
+        setSeries(newSeries);
+      })
+  }, []);
+
+  function handleChange({start, end, threshHold}: GraphArgs) {
+    PlotService
+      .fetch(start, end, threshHold)
+      .then(newSeries => {
+        console.log(newSeries);
+        setSeries(newSeries);
+      });
+  }
+
   return (
     <>
-      <Header/>
-      <DarkChart/>
+      <header>
+        <SummaryHeader/>
+        <StatisticsSummary/>
+        <GraphControls
+          graph={graphArgs}
+          onChange={(graphArgs) => handleChange(graphArgs)}/>
+      </header>
+      <DarkChart series={series}/>
     </>
   )
 }

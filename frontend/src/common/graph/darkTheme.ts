@@ -1,6 +1,7 @@
 const darkTheme = {
   chart: {
     backgroundColor: 'rgba(168,168,168, 0.03)',
+    type: 'spline',
     style: {
       fontFamily: 'sans-serif'
     },
@@ -14,8 +15,16 @@ const darkTheme = {
     }
   },
   xAxis: {
+    // type: 'datetime',
+    // labels: {
+    //   format: '{value:%Y-%m-%d}',
+    //   style: {
+    //     color: '#E0E0E3'
+    //   }
+    // },
     gridLineColor: '#707073',
     labels: {
+      format: '{value}',
       style: {
         color: '#E0E0E3'
       }
@@ -59,7 +68,7 @@ const darkTheme = {
       },
       marker: {
         lineColor: '#333'
-      }
+      },
     },
     boxplot: {
       fillColor: '#505053'

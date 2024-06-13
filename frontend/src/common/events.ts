@@ -5,7 +5,7 @@ export type GraphModel = {
 }
 
 export type SeriesModel = {
-  series: [Date, number][];
+  series: [number, number][];
 }
 
 export type HandleClick = {

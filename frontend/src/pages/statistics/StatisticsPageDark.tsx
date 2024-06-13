@@ -1,10 +1,10 @@
 import "flatpickr/dist/themes/dark.css";
 
 import Flatpickr from "react-flatpickr";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {DarkChart} from "../../common/graph/GraphDark";
 import {GraphArgs} from "../../model/GraphArgs";
-import {GraphModel, HandleChange} from "../../common/events";
+import {GraphModel, HandleChange, SeriesModel} from "../../common/events";
 import {PlotService} from "../../service/PlotService";
 
 function SummaryHeader() {
@@ -32,32 +32,45 @@ function SummaryHeader() {
   );
 }
 
-function StatisticsSummary() {
+function StatisticsSummary({series}: SeriesModel) {
+
+  const [max, setMax] = useState<number>(0);
+
   return (
     <div className="grid grid-cols-1 bg-gray-700/10 sm:grid-cols-2 lg:grid-cols-4">
       <div className="border-t border-white/5 px-4 py-6 sm:px-6 lg:px-8">
-        <p className="text-sm font-medium leading-6 text-gray-400">Number of deploys</p>
+        <p className="text-sm font-medium leading-6 text-gray-400">Number of points</p>
         <p className="mt-2 flex items-baseline gap-x-2">
-          <span className="text-4xl font-semibold tracking-tight text-white">405</span>
+          <span className="text-4xl font-semibold tracking-tight text-white">
+            {series.length}
+          </span>
         </p>
       </div>
       <div className="border-t border-white/5 px-4 py-6 sm:border-l sm:px-6 lg:px-8">
-        <p className="text-sm font-medium leading-6 text-gray-400">Average deploy time</p>
+        <p className="text-sm font-medium leading-6 text-gray-400">Max Temp</p>
         <p className="mt-2 flex items-baseline gap-x-2">
-          <span className="text-4xl font-semibold tracking-tight text-white">3.65</span>
-          <span className="text-sm text-gray-400">mins</span>
+          <span className="text-4xl font-semibold tracking-tight text-white">{ Math.max(...series.map(([x,y]) => y)) }</span>
+          <span className="text-sm text-gray-400">&#8451;</span>
         </p>
       </div>
       <div className="border-t border-white/5 px-4 py-6 sm:px-6 lg:border-l lg:px-8">
-        <p className="text-sm font-medium leading-6 text-gray-400">Number of servers</p>
+        <p className="text-sm font-medium leading-6 text-gray-400">Min Temp</p>
         <p className="mt-2 flex items-baseline gap-x-2">
-          <span className="text-4xl font-semibold tracking-tight text-white">3</span>
+          <span className="text-4xl font-semibold tracking-tight text-white">{Math.min(...series.map(([x, y]) => y))}</span>
+          <span className="text-sm text-gray-400">&#8451;</span>
         </p>
       </div>
       <div className="border-t border-white/5 px-4 py-6 sm:border-l sm:px-6 lg:px-8">
-        <p className="text-sm font-medium leading-6 text-gray-400">Success rate</p>
+        <p className="text-sm font-medium leading-6 text-gray-400">Average Temp</p>
         <p className="mt-2 flex items-baseline gap-x-2">
-          <span className="text-4xl font-semibold tracking-tight text-white">98.5%</span>
+          <span className="text-4xl font-semibold tracking-tight text-white">{
+            (series
+                .map(([x, y]) => y)
+                .reduce((a, b) => a + b) / series.length
+            ).toFixed(2)
+          }
+          </span>
+          <span className="text-sm text-gray-400">&#8451;</span>
         </p>
       </div>
     </div>
@@ -75,6 +88,7 @@ function GraphControls({onChange, graph}: HandleChange & GraphModel) {
             data-enable-time
             value={graph.start}
             onChange={([date]) => {
+              console.log("new date", date);
               graph.start = date;
               onChange(graph);
             }}
@@ -103,7 +117,6 @@ function GraphControls({onChange, graph}: HandleChange & GraphModel) {
           <input type="number"
                  defaultValue={1000}
                  onChange={(inputRef) => {
-                   // console.log("ref", inputRef);
                    graph.threshHold = Number(inputRef.target.value);
                    onChange(graph);
                  }}
@@ -148,7 +161,7 @@ function GraphControls({onChange, graph}: HandleChange & GraphModel) {
 export function StatisticsPageDark() {
 
   const [graphArgs, setGraphArgs] = useState<GraphArgs>(new GraphArgs());
-  const [series, setSeries] = useState<[Date,number][]>([]);
+  const [series, setSeries] = useState<[number,number][]>([]);
 
   useEffect(() => {
 
@@ -175,7 +188,7 @@ export function StatisticsPageDark() {
     <>
       <header>
         <SummaryHeader/>
-        <StatisticsSummary/>
+        <StatisticsSummary series={series}/>
         <GraphControls
           graph={graphArgs}
           onChange={(graphArgs) => handleChange(graphArgs)}/>

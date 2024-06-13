@@ -1,7 +1,7 @@
 import HighchartsReact, {HighchartsReactRefObject} from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
 import darkTheme from './darkTheme';
-import {RefAttributes, useEffect, useRef, useState} from "react";
+import {useEffect, useRef} from "react";
 import {SeriesModel} from "../events";
 
 Highcharts.setOptions(darkTheme);

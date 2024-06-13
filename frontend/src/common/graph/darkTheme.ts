@@ -16,19 +16,22 @@ const darkTheme = {
   },
   xAxis: {
     // type: 'datetime',
-    // labels: {
-    //   format: '{value:%Y-%m-%d}',
-    //   style: {
-    //     color: '#E0E0E3'
-    //   }
-    // },
-    gridLineColor: '#707073',
     labels: {
-      format: '{value}',
+      // format: '{value:%Y-%m-%d}',
+      // formatter: function () {
+      //   console.log(this);
+      // },
       style: {
         color: '#E0E0E3'
       }
     },
+    gridLineColor: '#707073',
+    // labels: {
+    //   format: '{value}',
+    //   style: {
+    //     color: '#E0E0E3'
+    //   }
+    // },
     lineColor: '#707073',
     minorGridLineColor: '#505053',
     tickColor: '#707073',
@@ -63,6 +66,12 @@ const darkTheme = {
   },
   plotOptions: {
     series: {
+      // spline: {
+      //   marker: {
+      //     enabled: false,
+      //     radius: 5
+      //   }
+      // },
       dataLabels: {
         color: '#B0B0B3'
       },

@@ -2,7 +2,7 @@
 
 class PlotServiceImpl {
 
-  async fetch(start: Date, end: Date, threshold: number): Promise<[Date,number][]> {
+  async fetch(start: Date, end: Date, threshold: number): Promise<[number,number][]> {
     const baseUrl = window.location.origin + '/api/plot';
     const url = new URL(baseUrl);
     const searchParams = new URLSearchParams();
@@ -28,7 +28,8 @@ class PlotServiceImpl {
 
       const data = await response.json() as [number, number][];
 
-      return data.map(([x,y]) => [new Date(x), y]);
+      return data;
+      // return data.map(([x,y]) => [new Date(x), y]);
     }
     catch (error) {
       console.error('There was a problem with the fetch operation:', error);

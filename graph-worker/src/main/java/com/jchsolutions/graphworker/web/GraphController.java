@@ -3,6 +3,7 @@ package com.jchsolutions.graphworker.web;
 
 import com.jchsolutions.graphworker.model.Point;
 import com.jchsolutions.graphworker.service.GraphService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,13 +14,10 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class GraphController {
 
-  GraphService graphService;
-
-  public GraphController(GraphService graphService) {
-    this.graphService = graphService;
-  }
+  private final GraphService graphService;
 
   @GetMapping("/plot")
   public Mono<List<Point>> plot(

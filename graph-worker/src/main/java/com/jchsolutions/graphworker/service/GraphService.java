@@ -1,6 +1,7 @@
 package com.jchsolutions.graphworker.service;
 
 import com.jchsolutions.graphworker.dao.TimeSeriesDao;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.jchsolutions.graphworker.model.Point;
@@ -15,13 +16,10 @@ import static java.lang.Math.floor;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class GraphService {
 
-  TimeSeriesDao timeSeriesDao;
-
-  public GraphService(TimeSeriesDao timeSeriesDao) {
-    this.timeSeriesDao = timeSeriesDao;
-  }
+  private final TimeSeriesDao timeSeriesDao;
 
   public Mono<List<Point>> plot(ZonedDateTime start, ZonedDateTime end, Integer threshold) {
     return timeSeriesDao

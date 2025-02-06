@@ -1,6 +1,7 @@
 package com.jchsolutions.csvprocessor.service;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
@@ -16,15 +17,12 @@ import static java.lang.String.format;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CsvProcessorService {
 
-  Iterable<CSVRecord> records;
-  CSVPrinter csvPrinter;
+  private final Iterable<CSVRecord> records;
+  private final CSVPrinter csvPrinter;
 
-  public CsvProcessorService(Iterable<CSVRecord> records, CSVPrinter csvPrinter) {
-    this.records = records;
-    this.csvPrinter = csvPrinter;
-  }
 
   @PostConstruct
   public void start() throws IOException {

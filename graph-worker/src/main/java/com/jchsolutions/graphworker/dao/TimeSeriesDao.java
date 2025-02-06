@@ -75,29 +75,4 @@ public class TimeSeriesDao {
         .y(record.getDouble(1))
         .build();
   }
-
-  public static void main(String[] args) throws SqlException {
-
-    final CairoConfiguration configuration = new DefaultCairoConfiguration("/Users/jchicks/QUEST-DB/dev-docker/questdb/data/db");
-
-    String sql = """
-      select TIME_STAMP, TEMPERATURE
-      FROM WEATHER_DATA
-      WHERE TIME_STAMP BETWEEN '2020-01-01T00:00:00Z' AND '2020-01-31T23:59:59Z';
-      """;
-
-    try (CairoEngine engine = new CairoEngine(configuration)) {
-      final SqlExecutionContext ctx = new SqlExecutionContextImpl(engine, 1)
-        .with(AllowAllSecurityContext.INSTANCE, null);
-
-      try (RecordCursorFactory factory = engine.select(sql, ctx)) {
-        var cursor = factory.getCursor(ctx);
-        while (cursor.hasNext()) {
-          var record = cursor.getRecord();
-
-          System.out.println(timeXPointMapper(record));
-        }
-      }
-    }
-  }
 }

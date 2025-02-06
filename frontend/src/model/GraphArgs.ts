@@ -1,7 +1,7 @@
 export class GraphArgs {
   start: Date = new Date("2019-01-01T00:00:00Z");
   end: Date = new Date();
-  threshHold: number = 1000;
+  threshHold: number = 400;
 
   clone(): GraphArgs {
     const graph = new GraphArgs();

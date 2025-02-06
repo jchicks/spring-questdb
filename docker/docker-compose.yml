@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - questdb-network
+
+  backend:
+    build:
+      context: ../graph-worker
+      dockerfile: Dockerfile
+    ports:
+      - "4040:4040"
+    networks:
+      - questdb-network
+
+
+networks:
+  questdb-network:
+    driver: bridge

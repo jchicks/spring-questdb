@@ -1,4 +1,11 @@
 
+if (process.env.NODE_ENV !== 'production') {
+  console.log("prod release")
+}
+else {
+  console.log()
+}
+
 
 class PlotServiceImpl {
 
@@ -26,10 +33,7 @@ class PlotServiceImpl {
         throw new Error('Network response was not ok ' + response.statusText);
       }
 
-      const data = await response.json() as [number, number][];
-
-      return data;
-      // return data.map(([x,y]) => [new Date(x), y]);
+      return await response.json() as [number, number][];
     }
     catch (error) {
       console.error('There was a problem with the fetch operation:', error);

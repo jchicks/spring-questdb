@@ -64,10 +64,12 @@ function StatisticsSummary({series}: SeriesModel) {
         <p className="text-sm font-medium leading-6 text-gray-400">Average Temp</p>
         <p className="mt-2 flex items-baseline gap-x-2">
           <span className="text-4xl font-semibold tracking-tight text-white">{
+            (series !== null && series.length > 0) ?
             (series
                 .map(([x, y]) => y)
                 .reduce((a, b) => a + b) / series.length
-            ).toFixed(2)
+            ).toFixed(2) :
+            '0'
           }
           </span>
           <span className="text-sm text-gray-400">&#8451;</span>

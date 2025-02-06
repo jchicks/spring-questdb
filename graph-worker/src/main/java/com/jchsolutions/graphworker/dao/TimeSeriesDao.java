@@ -10,6 +10,7 @@ import io.questdb.cairo.sql.RecordCursorFactory;
 import io.questdb.griffin.SqlException;
 import io.questdb.griffin.SqlExecutionContext;
 import io.questdb.griffin.SqlExecutionContextImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import io.questdb.cairo.sql.Record;
@@ -20,17 +21,12 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Service
+@RequiredArgsConstructor
 public class TimeSeriesDao {
 
-  CairoConfiguration cairoConfiguration;
-  SqlService sqlService;
+  private final CairoConfiguration cairoConfiguration;
+  private final SqlService sqlService;
   private final ReentrantLock lock = new ReentrantLock();
-
-
-  public TimeSeriesDao(CairoConfiguration cairoConfiguration, SqlService sqlService) {
-    this.cairoConfiguration = cairoConfiguration;
-    this.sqlService = sqlService;
-  }
 
   public Mono<List<Point>> getPoints(ZonedDateTime start, ZonedDateTime end) {
     var sql = sqlService.generateSql(start, end);
